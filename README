@@ -8,7 +8,7 @@ This file should be executed as a daily cron job.
 It checks the time of the last synchronization between two mentioned tools. Then it finds all the new/updated archival institution/description in AtoM and performs upload of a new file to CKAN, and creates new dataspace if necessary. It also stores the information of transferred files in the satelite tables of the local AtoM MySQL database, and at the end updates time of the last synchronization.
 
 There are a few of auxiliary files:
-- complete_atom_to_ckan_config.php: contains all necessary links and secret values;
+- complete_atom_to_ckan_config.sample: contains all necessary links and secret values, rename to .php in production;
 - complete_atom_to_ckan_api_communication.php: implements all functions which are using API of CKAN
 - complete_atom_to_ckan_database_communication.php: implements all functions that are communicating with AtoM MySQL database           
 - complete_atom_to_ckan_create_eag.php: implements all functions that are used for the creation of the EAG XML files from the values stored in AtoM MySQL database
