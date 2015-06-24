@@ -304,7 +304,7 @@ if(!empty($row5))$inst_type =((count($row5)>1)?$row5[1]["name"]:$row5[0]["name"]
 $out='';
 
 $out .= '<?xml version="1.0" encoding="UTF-8"?>'."\n";
-$out .= '<?xml-model href= "http://134.76.20.210/schemas/eag/v1.0/rnc/EAG-schema.rnc" type="application/relax-ng-compact-syntax"?>'."\n";
+$out .= '<?xml-model href= "http://dx.doi.org/11378/0000-0000-249D-7" type="application/relax-ng-compact-syntax"?>'."\n";
 $out .= '<eag xmlns="http://www.ministryculture.es/">'."\n";
 $out .= '  <eagheader countryencoding="iso3166-1" langencoding="iso639-1" scriptencoding="iso15924" repositoryencoding="" dateencoding="iso8601" status="draft">'."\n";
 $out .= '   <mainhist>'."\n";
