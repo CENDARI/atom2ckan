@@ -14,7 +14,7 @@ function get_date($link)
   
     //write to log
     $log=fopen('ckan_transfer.log', 'a');
-    $l='***************************'.PHP_EOL.'STARTING NEW SINHRONIZATION:'.date("Y-m-d H:i:s").PHP_EOL.'***************************'.PHP_EOL;            
+    $l='***************************'.PHP_EOL.'STARTING NEW SYNCHRONIZATION:'.date("Y-m-d H:i:s").PHP_EOL.'***************************'.PHP_EOL;            
     fwrite($log, $l);
     fclose($log);
   
