@@ -28,6 +28,12 @@ function put_date($link)
   {
     $sql = "update harvester_date set harvester_date.date=NOW();";
     $result = $link->query($sql);
+    
+    //write to log
+    $log=fopen('ckan_transfer.log', 'a');
+    $l='***************************'.PHP_EOL.'FINISHING SINHRONIZATION:'.date("Y-m-d H:i:s").PHP_EOL.'***************************'.PHP_EOL;
+    fwrite($log, $l);
+    fclose($log);
   }
 
 /*get the ead content of the given slug*/
