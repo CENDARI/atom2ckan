@@ -17,3 +17,7 @@ AtoM MySQL database is expanded with three satellite tables:
 - harvester_ead which contains AtoM identifier of the description (atom_ead_id),  AtoM slug of the description (atom_ead_slug),  AtoM slug of the institution (atom_eag_slug), CKAN identifier of the description (repository_resource_id) and the date of the transfer from AtoM to CKAN of the description (sync_date)
 - harvester_eag which contains AtoM identifier of the institution (atom_eag_id),  AtoM slug of the institution (atom_eag_slug), CKAN identifier of the institution (repository_resource_id) and the date of the transfer from AtoM to CKAN of the institutional description (sync_date)
 - harvester_date which contains the date of the last synchronization
+
+File mail_report.php should be executed as a weekly (Wednesday, 14:00) cron
+job. This script sends informartion on the current number of files in AtoM and
+the number of transfered files to CKAN. 
