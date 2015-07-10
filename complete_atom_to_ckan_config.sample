@@ -25,4 +25,8 @@ $mysql_database="???";
 //mysql user
 $mysql_user="???"; 
 $mysql_password="???";
+
+// email address for mail_report
+$mail_report_to='root@localhost'
+
 ?>

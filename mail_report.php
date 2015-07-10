@@ -1,5 +1,5 @@
 <?php
-include 'mail_report_config.php';
+include 'complete_atom_to_ckan_config.php';
 
 //open new connection to mysql
   $link = new mysqli("localhost", $mysql_user, $mysql_password, $mysql_database);
@@ -69,5 +69,5 @@ $message.='Number of archival institutions: '.$ai.PHP_EOL;
 $message.='Transferred EAD files: '.$ead.PHP_EOL;
 $message.='Number of archival descriptions: '.$ad.PHP_EOL;
 
-mail($to,$subject,$message);
+mail($mail_report_to,$subject,$message);
 ?>
