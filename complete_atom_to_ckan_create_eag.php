@@ -56,7 +56,7 @@ $ret .= '    </languagedecl>'."\n";
 return $ret;
 }
 
-function create_eag($link, $line)
+function create_eag($link, $line,$inst_slug,$atom_url)
 {
 $country_name = array(
 "AL" => "Albania",
@@ -304,7 +304,7 @@ if(!empty($row5))$inst_type =((count($row5)>1)?$row5[1]["name"]:$row5[0]["name"]
 $out='';
 
 $out .= '<?xml version="1.0" encoding="UTF-8"?>'."\n";
-$out .= '<?xml-model href= "http://dx.doi.org/11378/0000-0000-249D-7" type="application/relax-ng-compact-syntax"?>'."\n";
+$out .= '<?xml-model href= "http://134.76.20.210/schemas/eag/v1.0/rnc/EAG-schema.rnc" type="application/relax-ng-compact-syntax"?>'."\n";
 $out .= '<eag xmlns="http://www.ministryculture.es/">'."\n";
 $out .= '  <eagheader countryencoding="iso3166-1" langencoding="iso639-1" scriptencoding="iso15924" repositoryencoding="" dateencoding="iso8601" status="draft">'."\n";
 $out .= '   <mainhist>'."\n";
@@ -318,6 +318,7 @@ $out .= '      </mainevent>'."\n";
 $out .= '    </mainhist>'."\n";
 if(!empty($row6)&&!empty($row7)) $out .= add_lang($row6[0], $row7[0]);
 $out .= '  </eagheader>'."\n";
+$out .= '<eagid identifier="'.$inst_slug.'" url="'.$atom_url.'/index.php/'.$inst_slug.'" encodinganalog="identifier">'.$line.'</eagid>'."\n";
 $out .= '  <archguide>'."\n";
 $out .= '    <identity>'."\n";
 $out .= '      <repositorid countrycode="'.(!empty($country_code)? $country_code: '').'" repositorycode="'.$identifier.'"/>'."\n";

@@ -117,6 +117,7 @@ function ckan_create_new_resource($identifier, $authorized_form_of_name, $inst_s
         'url' => $ckan_url.$inst_slug.'/resource/'.$slug.'.ead.xml',
         'description' => $holdings,
         'name' => $slug.'.ead.xml',
+        'webstore_url' => $atom_url.'/index.php/'.$slug,
         'format' => 'XML',
         'resource_type' => 'file.upload',
         'url_type' => 'upload',
@@ -175,6 +176,8 @@ function ckan_update_resource($identifier, $authorized_form_of_name, $inst_slug,
     
     $file_dict = array(
         'id' => $id,
+        'last_modified' => date("Y-m-d H:i:s"),
+        'webstore_url' => $atom_url.'/index.php/'.$slug,
         'upload' => '@'.$slug.'.ead.xml'
         );
 
@@ -222,11 +225,72 @@ function ckan_update_resource($identifier, $authorized_form_of_name, $inst_slug,
     unlink($slug.'.ead.xml');      
   }
 
+/*delete existing ead ead file at ckan*/
+function ckan_delete_resource( $slug,  $ch, $atom_url, $ckan_api_url, $ckan_api_key, $ckan_url, $atom_id, $link)
+  { 
+    $tmp=fopen($slug.'.ead.xml', 'w');
+    fwrite($tmp, get_ead($atom_url, $slug, $ch));
+    fclose($tmp);
+    
+    $id= get_ckan_id($atom_id, $link);
+    
+    $file_dict = array(
+        'id' => $id,
+        'last_modified' => date("Y-m-d H:i:s"),
+        'state' => 'deleted',
+        'webstore_url' => $atom_url.'/index.php/'.$slug,
+        'upload' => '@'.$slug.'.ead.xml'
+        );
+
+    // Setup cURL ckan_api =  
+    $ch2 = curl_init($ckan_api_url.'resource_update');
+    curl_setopt_array($ch2, array(
+          CURLOPT_POST => TRUE,
+          CURLOPT_RETURNTRANSFER => TRUE,
+          CURLOPT_HTTPHEADER => array(
+            'Authorization: '.$ckan_api_key,
+            'Content-Type: multipart/form-data;charset=UTF-8',
+	    ),
+          CURLOPT_POSTFIELDS => $file_dict
+	  ));
+
+    // Send the request
+    $response = curl_exec($ch2);
+
+
+    // Check for errors
+    if($response == FALSE)
+      {
+        die(curl_error($ch2));
+      }
+    
+    $responseData = json_decode($response, TRUE);
+    curl_close ($ch2);
+            
+    //write to log and database
+    $log=fopen('ckan_transfer.log', 'a');
+    $l=$slug;
+    if ($responseData['success']) 
+      {
+        $l=$l.' successfully updated';
+        $sql = "update harvester_ead set sync_date=NOW() where atom_ead_id=".$atom_id.";";
+        $result = $link->query($sql); 
+      }
+                      
+    else $l=$l.' '.$responseData['error']['message'];
+    $l=$l.PHP_EOL;  
+    fwrite($log, $l);
+    fclose($log);
+                                        
+    //delete temporary local file 
+    unlink($slug.'.ead.xml');      
+  }  
+  
 /*create new eag file at ckan*/
-function upload_eag($authorized_form_of_name, $inst_slug, $ckan_api_url, $ckan_api_key, $line, $link)
+function upload_eag($authorized_form_of_name, $inst_slug, $ckan_api_url, $ckan_api_key, $line, $link,$atom_url)
   {
     $tmp=fopen($inst_slug.'.eag.xml', 'w');
-    fwrite($tmp, create_eag($link, $line));
+    fwrite($tmp, create_eag($link, $line,$inst_slug,$atom_url));
     fclose($tmp);
     
     $file_dict = array(
@@ -234,6 +298,7 @@ function upload_eag($authorized_form_of_name, $inst_slug, $ckan_api_url, $ckan_a
         'url' => $ckan_api_url.$inst_slug.'/resource/'.$inst_slug.'.eag.xml',
         'description' => $inst_slug,
         'name' => $inst_slug.'.eag.xml',
+        'webstore_url' => $atom_url.'/index.php/'.$inst_slug,
         'format' => 'XML',
         'resource_type' => 'file.upload',
         'url_type' => 'upload',
@@ -283,7 +348,7 @@ function upload_eag($authorized_form_of_name, $inst_slug, $ckan_api_url, $ckan_a
   }
 
 /*update existing eag file at ckan*/
-function update_eag($authorized_form_of_name, $inst_slug, $ckan_api_url, $ckan_api_key, $line, $link)
+function update_eag($authorized_form_of_name, $inst_slug, $ckan_api_url, $ckan_api_key, $line, $link,$atom_url)
   { 
     $tmp=fopen($slug.'.eag.xml', 'w');
     fwrite($tmp, create_eag($link, $line));
@@ -293,6 +358,8 @@ function update_eag($authorized_form_of_name, $inst_slug, $ckan_api_url, $ckan_a
     
     $file_dict = array(
         'id' => $id,
+        'last_modified' => date("Y-m-d H:i:s"),
+        'webstore_url' => $atom_url.'/index.php/'.$inst_slug,
         'upload' => '@'.$inst_slug.'.ead.xml'
         );
 
@@ -339,4 +406,65 @@ function update_eag($authorized_form_of_name, $inst_slug, $ckan_api_url, $ckan_a
     //delete temporary local file 
     unlink($slug.'.eag.xml');      
   }
+  
+/*delete existing eag file at ckan*/
+function delete_eag($inst_slug, $ckan_api_url, $ckan_api_key, $line, $link,$atom_url)
+  { 
+    $tmp=fopen($slug.'.eag.xml', 'w');
+    fwrite($tmp, create_eag($link, $line));
+    fclose($tmp);
+    
+    $id= get_ckan_eag_id($line, $link);
+    
+    $file_dict = array(
+        'id' => $id,
+        'last_modified' => date("Y-m-d H:i:s"),
+        'state' => 'deleted',
+        'webstore_url' => $atom_url.'/index.php/'.$inst_slug,
+        'upload' => '@'.$inst_slug.'.ead.xml'
+        );
+
+    // Setup cURL ckan_api =  
+    $ch2 = curl_init($ckan_api_url.'resource_update');
+    curl_setopt_array($ch2, array(
+          CURLOPT_POST => TRUE,
+          CURLOPT_RETURNTRANSFER => TRUE,
+          CURLOPT_HTTPHEADER => array(
+            'Authorization: '.$ckan_api_key,
+            'Content-Type: multipart/form-data;charset=UTF-8',
+	    ),
+          CURLOPT_POSTFIELDS => $file_dict
+	  ));
+
+    // Send the request
+    $response = curl_exec($ch2);
+
+
+    // Check for errors
+    if($response == FALSE)
+      {
+        die(curl_error($ch2));
+      }
+    
+    $responseData = json_decode($response, TRUE);
+    curl_close ($ch2);
+            
+    //write to log and database
+    $log=fopen('ckan_transfer.log', 'a');
+    $l=$slug;
+    if ($responseData['success']) 
+      {
+        $l=$l.' successfully updated';
+        $sql = "update harvester_eag set sync_date=NOW() where atom_eag_id=".$line.";";
+        $result = $link->query($sql); 
+      }
+                      
+    else $l=$line.' '.$authorized_form_of_name.' '.$l.' '.$responseData['error']['message'];
+    $l=$l.PHP_EOL;  
+    fwrite($log, $l);
+    fclose($log);
+                                        
+    //delete temporary local file 
+    unlink($slug.'.eag.xml');      
+  }  
 ?>

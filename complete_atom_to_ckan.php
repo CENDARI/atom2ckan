@@ -20,7 +20,7 @@ include 'complete_atom_to_ckan_database_communication.php';
     
   $link->set_charset("utf8");
   
-  $last_date = get_date($link);
+  $last_date1 = get_date($link);
   
   //open new connection to atom
   // INIT CURL
@@ -52,8 +52,63 @@ include 'complete_atom_to_ckan_database_communication.php';
   // EXECUTE 1st REQUEST (FORM LOGIN)
   $store = curl_exec ($ch);
 
+  //delete files at CKAN that are already deleted in AtoM
+  $sql ="select atom_eag_id from harvester_eag where atom_eag_id not in (select identifier from repository)";
+  $result = $link->query($sql);
+  $rows = array();
+  while($row = $result->fetch_assoc())
+    {
+      $rows[] = $row["atom_eag_id"];
+    }
+  $result->close();
+  
+  foreach($rows as $line)
+  {
+  $sql ="select atom_eag_slug from harvester_eag where atom_eag_id =".$line;
+  $result = $link->query($sql);
+  $rows = array();
+  while($row = $result->fetch_assoc())
+    {
+      $atom_eag_slug = $row["atom_eag_slug"];
+    }
+  $result->close();
+  
+  delete_eag($atom_eag_slug, $ckan_api_url, $ckan_api_key, $line, $link, $atom_url);
+  
+  $sql="delete from harvester_eag where atom_eag_id =".$line;
+  $result = $link->query($sql);
+  }
+  unset($rows);
+  
+  $sql ="select atom_ead_id from harvester_ead where atom_ead_id not in (select id from information_object)";
+  $result = $link->query($sql);
+  $rows = array();
+  while($row = $result->fetch_assoc())
+    {
+      $rows[] = $row["atom_ead_id"];
+    }
+  $result->close();
+  
+  foreach($rows as $id)
+  {
+  $sql ="select atom_ead_slug from harvester_ead where atom_ead_id =".$id;
+  $result = $link->query($sql);
+  $rows = array();
+  while($row = $result->fetch_assoc())
+    {
+      $slug = $row["atom_ead_slug"];
+    }
+  $result->close();
+  
+  ckan_delete_resource($slug, $ch, $atom_url, $ckan_api_url, $ckan_api_key, $ckan_url, $id, $link);
+  
+  $sql="delete from harvester_ead where atom_ead_id =".$id;
+  $result = $link->query($sql);
+  }
+  unset($rows);
+  
   //get institution from atom
-  $sql = "select actor.id from actor join repository on actor.id = repository.id";// where actor.id = 1926"; /for tests
+  $sql = "select actor.id from actor join repository on actor.id = repository.id"; // where actor.id = 1926"; /for tests
   $result = $link->query($sql);
   $rows = array();
   while($row = $result->fetch_assoc())
@@ -115,7 +170,7 @@ include 'complete_atom_to_ckan_database_communication.php';
     $res3->close();
     
     $size=count($row3);
-    
+        
     if($size>0)
       {
     
@@ -151,12 +206,14 @@ include 'complete_atom_to_ckan_database_communication.php';
       
       if(!$responseData['success'])
         {
+        
           $responseAnswer=$responseData['error']['message'];
           if ($responseAnswer =='Not found') 
 	    {
 	      ckan_create_new_dataset($authorized_form_of_name[0], $inst_slug[0], $ckan_api_url, $ckan_api_key, $line, $link);
-	      upload_eag($authorized_form_of_name[0], $inst_slug[0], $ckan_api_url, $ckan_api_key, $line, $link);
+	      upload_eag($authorized_form_of_name[0], $inst_slug[0], $ckan_api_url, $ckan_api_key, $line, $link,$atom_url);
 	    }
+        }
 	  else 
 	      {
 		//check dates for the eag file
@@ -164,22 +221,39 @@ include 'complete_atom_to_ckan_database_communication.php';
 		$res5 = $link->query($q5); 
 		while($row = $res5->fetch_assoc())
 		  {
-		    $row4[] = $row;
+		    $row5[] = $row;
 		  }
 		$res5->close();
 		foreach($row5 as $row)
 		  $updated_date = $row["updated_at"];
-	  
+                unset($row5);
+		  
+                $q5= "select sync_date from harvester_eag where atom_eag_id=".$line.";";
+		$res5 = $link->query($q5); 
+		while($row = $res5->fetch_assoc())
+		  {
+		    $row5[] = $row;
+		  }
+		$res5->close();
+		if(!empty($row5))
+		{
+		foreach($row5 as $row)
+		  $last_date = $row["sync_date"];
+                }
+                
 		$last=new DateTime($last_date);
 		$updated=new DateTime($updated_date);
-		if ($last < $updated)
-		  {
-		    if(get_eag_ckan_id_from_ckan($inst_slug[0],$ckan_api_url, $ckan_api_key))
-		      update_eag($authorized_form_of_name[0], $inst_slug[0], $ckan_api_url, $ckan_api_key, $line, $link);
-		    else upload_eag($authorized_form_of_name[0], $inst_slug[0], $ckan_api_url, $ckan_api_key, $line, $link);
+
+		if (get_eag_ckan_id_from_ckan($inst_slug[0],$ckan_api_url, $ckan_api_key))
+		  { 
+		    if($last < $updated) 
+		      update_eag($authorized_form_of_name[0], $inst_slug[0], $ckan_api_url, $ckan_api_key, $line, $link,$atom_url);
 		  }
+		  else {
+      		  upload_eag($authorized_form_of_name[0], $inst_slug[0], $ckan_api_url, $ckan_api_key, $line, $link,$atom_url);
+      		  }
 	      }
-        }
+        
 
     for($i=0;$i<$size;$i++)
       {
@@ -195,7 +269,17 @@ include 'complete_atom_to_ckan_database_communication.php';
 	  {
 	    $creation_date = $row["created_at"];
 	    $updated_date = $row["updated_at"];
-	  }	
+	  }
+	  
+        $q5= "select sync_date from harvester_ead where atom_ead_id=".$id[$i].";";
+        $res5 = $link->query($q5); 
+	while($row = $res5->fetch_assoc())
+	  {
+	    $row5[] = $row;
+	  }
+	$res5->close(); 
+	foreach($row5 as $row)
+	  $last_date = $row["sync_date"];
         
         $ld = new DateTime($last_date);
         $cd = new DateTime($creation_date);
@@ -204,12 +288,12 @@ include 'complete_atom_to_ckan_database_communication.php';
 	//transfer new files to ckan
 	if ($ld < $cd) ckan_create_new_resource($identifier[0], $authorized_form_of_name[0], $inst_slug[0], $slug[$i], $holdings[$i], $ch, $atom_url, $ckan_api_url, $ckan_api_key,$ckan_url, $id[$i], $link);
 	//transfer updated files to ckan
-	else if ($ld < $ud) 
+	else if (get_ckan_id_from_ckan($slug[$i],$ckan_api_url, $ckan_api_key)) 
 	    {
-	      if (get_ckan_id_from_ckan($slug[$i],$ckan_api_url, $ckan_api_key))
+	      if ($ld < $ud)
 		ckan_update_resource($identifier[0], $authorized_form_of_name[0], $inst_slug[0], $slug[$i], $holdings[$i], $ch, $atom_url, $ckan_api_url, $ckan_api_key,$ckan_url, $id[$i], $link);
+            }
 	      else ckan_create_new_resource($identifier[0], $authorized_form_of_name[0], $inst_slug[0], $slug[$i], $holdings[$i], $ch, $atom_url, $ckan_api_url, $ckan_api_key,$ckan_url, $id[$i], $link);
-	    }    
       }
       
     //clear local variables
