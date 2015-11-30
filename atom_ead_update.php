@@ -25,8 +25,9 @@ include 'complete_atom_to_ckan_config.php';
   
   foreach ($rows as $line)
   {
-    $q2 = "select date from event_i18n join event on event.id=event_i18n.id where information_object_id=".$line.";";
+    $q2 = "select date from event_i18n join event on event.id=event_i18n.id where object_id=".$line.";";
     $res2 = $link->query($q2);
+    
     while($row = $res2->fetch_assoc())
       {
 	$date = $row["date"];
@@ -34,8 +35,8 @@ include 'complete_atom_to_ckan_config.php';
     $res2->close();
     
     if(!empty($date)){  
-    if (strpos($date,"19")!== false) $term_id=???;//ww1
-    else $term_id=???;//mm
+    if (strpos($date,"19")!== false) $term_id=13602;//ww1
+    else $term_id=13604;//mm
 
     $sql="insert into object values ('QubitObjectTermRelation',NOW(),NOW(),NULL,0)";
     $result = $link->query($sql);
