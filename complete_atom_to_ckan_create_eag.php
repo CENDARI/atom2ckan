@@ -318,7 +318,7 @@ $out .= '      </mainevent>'."\n";
 $out .= '    </mainhist>'."\n";
 if(!empty($row6)&&!empty($row7)) $out .= add_lang($row6[0], $row7[0]);
 $out .= '  </eagheader>'."\n";
-$out .= '<eagid identifier="'.$inst_slug.'" url="'.$atom_url.'/index.php/'.$inst_slug.'" encodinganalog="identifier">'.$line.'</eagid>'."\n";
+$out .= '<eagid identifier="'.$inst_slug.'" url="'.$atom_url.'index.php/'.$inst_slug.'" encodinganalog="identifier">'.$line.'</eagid>'."\n";
 $out .= '  <archguide>'."\n";
 $out .= '    <identity>'."\n";
 $out .= '      <repositorid countrycode="'.(!empty($country_code)? $country_code: '').'" repositorycode="'.$identifier.'"/>'."\n";

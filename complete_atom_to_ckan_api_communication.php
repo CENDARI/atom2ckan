@@ -51,8 +51,8 @@ function get_eag_ckan_id_from_ckan($name,$ckan_api_url, $ckan_api_key)
     $response = curl_exec($ch2);
     $responseData = json_decode($response, TRUE);
     curl_close ($ch2);
-    
-    return  $responseData['success'];  
+
+    return  $responseData['result']['id'];  
   }
 
 /*create new dataset in ckan for the new organization*/
@@ -350,8 +350,8 @@ function upload_eag($authorized_form_of_name, $inst_slug, $ckan_api_url, $ckan_a
 /*update existing eag file at ckan*/
 function update_eag($authorized_form_of_name, $inst_slug, $ckan_api_url, $ckan_api_key, $line, $link,$atom_url)
   { 
-    $tmp=fopen($slug.'.eag.xml', 'w');
-    fwrite($tmp, create_eag($link, $line));
+    $tmp=fopen($inst_slug.'.eag.xml', 'w');
+    fwrite($tmp, create_eag($link, $line,$inst_slug,$atom_url));
     fclose($tmp);
     
     $id= get_ckan_eag_id($line, $link);
@@ -360,7 +360,7 @@ function update_eag($authorized_form_of_name, $inst_slug, $ckan_api_url, $ckan_a
         'id' => $id,
         'last_modified' => date("Y-m-d H:i:s"),
         'webstore_url' => $atom_url.'/index.php/'.$inst_slug,
-        'upload' => '@'.$inst_slug.'.ead.xml'
+        'upload' => '@'.$inst_slug.'.eag.xml'
         );
 
     // Setup cURL ckan_api =  
@@ -390,7 +390,7 @@ function update_eag($authorized_form_of_name, $inst_slug, $ckan_api_url, $ckan_a
             
     //write to log and database
     $log=fopen('ckan_transfer.log', 'a');
-    $l=$slug;
+    $l=$inst_slug;
     if ($responseData['success']) 
       {
         $l=$l.' successfully updated';
@@ -404,7 +404,7 @@ function update_eag($authorized_form_of_name, $inst_slug, $ckan_api_url, $ckan_a
     fclose($log);
                                         
     //delete temporary local file 
-    unlink($slug.'.eag.xml');      
+    unlink($inst_slug.'.eag.xml');      
   }
   
 /*delete existing eag file at ckan*/
