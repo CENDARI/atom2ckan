@@ -56,6 +56,17 @@ $ret .= '    </languagedecl>'."\n";
 return $ret;
 }
 
+function replace_special_characters($str)
+{
+$str1 = str_replace('"','&quot;',$str);
+$str2 = str_replace('&','&amp;',$str1);
+$str3 = str_replace("'",'&apos;',$str2);
+$str4 = str_replace('<','&lt;',$str3);
+$str5 = str_replace('>','&gt;',$str4);
+
+return $str5;
+}
+
 function create_eag($link, $line,$inst_slug,$atom_url)
 {
 $country_name = array(
@@ -368,7 +379,10 @@ $dom->formatOutput = true;
 $dom->loadXML($out);
 return $dom->saveXML();
 */
-return $out;
+
+
+
+return replace_special_characters($out);
 }
 
 /*
