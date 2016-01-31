@@ -1,9 +1,21 @@
 <?php
+
+function replace_special_characters($str)
+{
+$str1 = str_replace('"','&quot;',$str);
+$str2 = str_replace('&','&amp;',$str1);
+$str3 = str_replace("'",'&apos;',$str2);
+$str4 = str_replace('<','&lt;',$str3);
+$str5 = str_replace('>','&gt;',$str4);
+
+return $str5;
+}
+
 function add_element($element, $values)
 {
   $ret = '';
   
-    foreach ($values as $value) if(!empty($value))$ret .= '<'.$element.'>'.$value.'</'.$element.'>';
+    foreach ($values as $value) if(!empty($value))$ret .= '<'.$element.'>'.replace_special_characters($value).'</'.$element.'>';
      
        return $ret;
        }
@@ -20,7 +32,7 @@ foreach ($name as $value)
   $firstname=substr($value,0,$i);
   $surname=substr($value,$i+2,strlen($value));
   
-  $ret ='<person xmlns="http://www.tei-c.org/ns/1.0"><persName><forename>'.$firstname.'</forename><surname>'.$surname.'</surname></persName><affiliation><orgName type="institution">'.$inst.'</orgName></affiliation></person>';
+  $ret ='<person xmlns="http://www.tei-c.org/ns/1.0"><persName><forename>'.replace_special_characters($firstname).'</forename><surname>'.replace_special_characters($surname).'</surname></persName><affiliation><orgName type="institution">'.replace_special_characters($inst).'</orgName></affiliation></person>';
   }
 return $ret;
 }
@@ -37,7 +49,7 @@ foreach ($name as $value)
   $firstname=substr($value,0,$i);
   $surname=substr($value,$i+2,strlen($value));
   
-  $ret ='<resprepositor><person xmlns="http://www.tei-c.org/ns/1.0"><persName><forename>'.$firstname.'</forename><surname>'.$surname.'</surname></persName></person></resprepositor>';
+  $ret ='<resprepositor><person xmlns="http://www.tei-c.org/ns/1.0"><persName><forename>'.replace_special_characters($firstname).'</forename><surname>'.replace_special_characters($surname).'</surname></persName></person></resprepositor>';
   }
 return $ret;
 }
@@ -56,16 +68,6 @@ $ret .= '    </languagedecl>'."\n";
 return $ret;
 }
 
-function replace_special_characters($str)
-{
-$str1 = str_replace('"','&quot;',$str);
-$str2 = str_replace('&','&amp;',$str1);
-$str3 = str_replace("'",'&apos;',$str2);
-$str4 = str_replace('<','&lt;',$str3);
-$str5 = str_replace('>','&gt;',$str4);
-
-return $str5;
-}
 
 function create_eag($link, $line,$inst_slug,$atom_url)
 {
@@ -329,7 +331,7 @@ $out .= '      </mainevent>'."\n";
 $out .= '    </mainhist>'."\n";
 if(!empty($row6)&&!empty($row7)) $out .= add_lang($row6[0], $row7[0]);
 $out .= '  </eagheader>'."\n";
-$out .= '<eagid identifier="'.$inst_slug.'" url="'.$atom_url.'index.php/'.$inst_slug.'" encodinganalog="identifier">'.$line.'</eagid>'."\n";
+$out .= '<eagid identifier="'.replace_special_characters($inst_slug).'" url="'.replace_special_characters($atom_url).'index.php/'.replace_special_characters($inst_slug).'" encodinganalog="identifier">'.replace_special_characters($line).'</eagid>'."\n";
 $out .= '  <archguide>'."\n";
 $out .= '    <identity>'."\n";
 $out .= '      <repositorid countrycode="'.(!empty($country_code)? $country_code: '').'" repositorycode="'.$identifier.'"/>'."\n";
@@ -346,15 +348,15 @@ $out .= add_element("street",$street_address);
 $out .= '</location>';
 $out .= add_element("telephone",$telephone);
 $out .= add_element("fax",$fax);
-foreach ($email as $em) if(!empty($em)) $out .= '<email href="'.$em.'">'.$em.'</email>'."\n";
-foreach ($website as $ws) if(!empty($ws)) $out .= '<webpage href="'.$ws.'">'.$ws.'</webpage>'."\n";
+foreach ($email as $em) if(!empty($em)) $out .= '<email href="'.replace_special_characters($em).'">'.replace_special_characters($em).'</email>'."\n";
+foreach ($website as $ws) if(!empty($ws)) $out .= '<webpage href="'.replace_special_characters($ws).'">'.replace_special_characters($ws).'</webpage>'."\n";
 if(!empty($contact_person)) $out .= add_contact_person($contact_person);
 $out .= '      <repositorhist xml:lang="">'."\n";
-$out .= '        <p>'.str_replace(PHP_EOL,'</p><p>',$history[0]).'</p>'."\n";
+$out .= '        <p>'.str_replace(PHP_EOL,'</p><p>',replace_special_characters($history[0])).'</p>'."\n";
 $out .= '      </repositorhist>'."\n";
 if(!empty($finding_aids)){
 $out .= '      <repositorguides>'."\n";
-foreach($finding_aids as $finding_aid) $out .= '        <repositorguide xml:lang="">'.$finding_aid.'</repositorguide>'."\n"; 
+foreach($finding_aids as $finding_aid) $out .= '        <repositorguide>'.replace_special_characters($finding_aid).'</repositorguide>'."\n"; 
 $out .= '      </repositorguides>'."\n";}
 if(!empty($holdings)) $out .= '      <holdings><p>'.add_element("p",str_replace(PHP_EOL,'</p><p>',$holdings)).'</p></holdings>';
 
@@ -364,7 +366,7 @@ if(!empty($inst_type))
 {
 $out .= '        <controlaccess>'.PHP_EOL.'<controlaccess>'."\n";
 $out .= '          <head>Typology</head>'."\n";
-$out .= '          <subject>'.$inst_type.'</subject>'."\n";
+$out .= '          <subject>'.replace_special_characters($inst_type).'</subject>'."\n";
 $out .= '        </controlaccess>'."\n";
 $out .= '      </controlaccess>'."\n";
 }
@@ -379,46 +381,6 @@ $dom->formatOutput = true;
 $dom->loadXML($out);
 return $dom->saveXML();
 */
-
-
-
-return replace_special_characters($out);
 }
 
-/*
-$dir = '/srv/ica_atom_export/';
-if(!empty($country_code)){if(!is_dir($dir.strtoupper($country_name[$country_code]).'-'.$country_code)) mkdir($dir.strtoupper($country_name[$country_code]).'-'.$country_code);
-chmod($dir.strtoupper($country_name[$country_code]).'-'.$country_code, 0775);}
-if(!is_dir($dir."PROBLEMATIC/"))mkdir($dir."PROBLEMATIC/");
-chmod($dir."PROBLEMATIC/", 0775);
-
-if(in_array($desc_institution_identifier[0], $resp_inst) && !empty($country_code)){
-//$name=str_replace( array( '\'', '"', ',' , ';', '<', '>', '.', '„', '“', '/'), ' ', $authorized_form_of_name[0]);
-$name='';
-
-if(!is_dir($dir.strtoupper($country_name[$country_code]).'-'.$country_code.$name)){mkdir($dir.strtoupper($country_name[$country_code]).'-'.$country_code.'/'.$name);chmod($dir.strtoupper($country_name[$country_code]).'-'.$country_code.'/'.$name, 0775);}
-
-$file_name = $dir.strtoupper($country_name[$country_code]).'-'.$country_code.'/'.$name.'/'.(!empty($authorized_form_of_name[0])?str_replace( array( '\'', '"', ',' , ';', '<', '>', '.', '„', '“', '/'), ' ', $authorized_form_of_name[0]):$line).'.eag.xml';
-}
-else{
-$file_name = $dir."PROBLEMATIC/".(!empty($authorized_form_of_name[0])?str_replace( array( '\'', '"', ',' , ';', '<', '>', '.', '„', '“', '/'), ' ', $authorized_form_of_name[0]):$line).'.eag.xml';
-}
-$file = fopen($file_name, 'w');
-chmod($file_name, 0775);
-$out = str_replace('&', '&amp;', $out);
-fwrite($file, $out);
-fclose($file);
-
-
-unset($created_at,$street_address,$website,$email,$fax,$telephone);
-unset($contact_person,$postal_code,$city,$country_code,$authorized_form_of_name);
-unset($history,$desc_institution_identifier,$identifier,$holdings);
-unset($finding_aids,$desc_sources);
-unset($row1, $row2, $row3, $row4, $row5, $row6, $row7, $res1,$res2,$res3, $res4, $res5, $res6, $res7);
-}
-
-    
-
-echo "DONE";
-*/
 ?>

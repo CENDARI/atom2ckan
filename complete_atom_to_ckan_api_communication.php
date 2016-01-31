@@ -109,7 +109,9 @@ function ckan_create_new_dataset($authorized_form_of_name, $inst_slug, $ckan_api
 function ckan_create_new_resource($identifier, $authorized_form_of_name, $inst_slug, $slug, $holdings, $ch, $atom_url, $ckan_api_url, $ckan_api_key, $ckan_url, $atom_id, $link)
   { 
     $tmp=fopen($slug.'.ead.xml', 'w');
-    fwrite($tmp, get_ead($atom_url, $slug, $ch));
+    $str = get_ead($atom_url, $slug, $ch);
+    $str1 = str_replace('&','&amp;',$str);
+    fwrite($tmp, $str1);
     fclose($tmp);
     
     $file_dict = array(
@@ -169,7 +171,9 @@ function ckan_create_new_resource($identifier, $authorized_form_of_name, $inst_s
 function ckan_update_resource($identifier, $authorized_form_of_name, $inst_slug, $slug, $holdings, $ch, $atom_url, $ckan_api_url, $ckan_api_key, $ckan_url, $atom_id, $link)
   { 
     $tmp=fopen($slug.'.ead.xml', 'w');
-    fwrite($tmp, get_ead($atom_url, $slug, $ch));
+    $str = get_ead($atom_url, $slug, $ch);
+    $str1 = str_replace('&','&amp;',$str);
+    fwrite($tmp, $str1);
     fclose($tmp);
     
     $id= get_ckan_id($atom_id, $link);
