@@ -374,6 +374,7 @@ $out .= '     </desc>'."\n";
 $out .= '   </archguide>'."\n";
 $out .= '</eag>';
 
+return $out;
 /*
 $dom = new DOMDocument('1.0');
 $dom->preserveWhiteSpace = false;
