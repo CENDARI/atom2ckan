@@ -351,7 +351,7 @@ $out .= add_element("fax",$fax);
 foreach ($email as $em) if(!empty($em)) $out .= '<email href="'.replace_special_characters($em).'">'.replace_special_characters($em).'</email>'."\n";
 foreach ($website as $ws) if(!empty($ws)) $out .= '<webpage href="'.replace_special_characters($ws).'">'.replace_special_characters($ws).'</webpage>'."\n";
 if(!empty($contact_person)) $out .= add_contact_person($contact_person);
-$out .= '      <repositorhist xml:lang="">'."\n";
+$out .= '      <repositorhist>'."\n";
 $out .= '        <p>'.str_replace(PHP_EOL,'</p><p>',replace_special_characters($history[0])).'</p>'."\n";
 $out .= '      </repositorhist>'."\n";
 if(!empty($finding_aids)){
