@@ -374,6 +374,10 @@ $out .= '     </desc>'."\n";
 $out .= '   </archguide>'."\n";
 $out .= '</eag>';
 
+$xml = new XMLReader();
+if (!$xml->xml($out, NULL, LIBXML_DTDVALID)) {
+  echo $inst_slug." XML not valid".PHP_EOL;
+
 return $out;
 /*
 $dom = new DOMDocument('1.0');
