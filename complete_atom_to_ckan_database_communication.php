@@ -52,10 +52,10 @@ function get_ead($atom_url, $slug, $ch)
   $dom->formatOutput = true;
   $dom->loadXML($content);
   
-  
+  /*
   if (!$dom->validate()) 
     echo $slug." XML not valid".PHP_EOL;
-
+  */
 
   return $dom->saveXML();
   }
