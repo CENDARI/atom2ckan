@@ -53,7 +53,7 @@ function get_ead($atom_url, $slug, $ch)
   $dom->loadXML($content);
   
   
-  if (!$dom->validate()) {
+  if (!$dom->validate()) 
     echo $slug." XML not valid".PHP_EOL;
 
 
