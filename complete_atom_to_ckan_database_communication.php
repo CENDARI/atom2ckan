@@ -1,5 +1,6 @@
 <?php
 
+
 /*get the timestamp from database of the last transfer*/
 function get_date($link)
   {

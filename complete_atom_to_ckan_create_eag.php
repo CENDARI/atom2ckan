@@ -1,5 +1,6 @@
 <?php
 
+
 function replace_special_characters($str)
 {
 $str1 = str_replace('"','&quot;',$str);

@@ -1,4 +1,5 @@
 <?php
+
 //turn off notices
 //error_reporting(E_ALL ^ E_NOTICE);
 
