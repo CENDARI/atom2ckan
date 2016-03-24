@@ -96,8 +96,8 @@ function ckan_create_new_dataset($authorized_form_of_name, $inst_slug, $ckan_api
     if ($responseData['success']) 
       {
         $l=$l.' successfully created';
-        $sql = "insert into harvester_eag (atom_eag_id,atom_eag_slug,repository_resource_id,sync_date) values (".$atom_id.",'".$inst_slug."','".$responseData['result']['id']."',"."NOW());";
-        $result = $link->query($sql);
+        //$sql = "insert into harvester_eag (atom_eag_id,atom_eag_slug,repository_resource_id,sync_date) values (".$atom_id.",'".$inst_slug."','".$responseData['result']['id']."',"."NOW());";
+        //$result = $link->query($sql);
       }
     else $l=$authorized_form_of_name.' '.$l.' '.$responseData['error']['name'];
     $l=$l.PHP_EOL;
