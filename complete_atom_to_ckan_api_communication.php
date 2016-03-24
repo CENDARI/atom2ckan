@@ -391,7 +391,7 @@ function update_eag($authorized_form_of_name, $inst_slug, $ckan_api_url, $ckan_a
     
     $responseData = json_decode($response, TRUE);
     curl_close ($ch2);
-            
+                
     //write to log and database
     $log=fopen('ckan_transfer.log', 'a');
     $l=$inst_slug;
